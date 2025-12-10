@@ -348,10 +348,10 @@ export default function App() {
                 title="Swap Input Mode"
               >
                 <ArrowRightLeft size={14} />
-                {inputMode === 'text' ? 'Text → Morse' : 'Morse → Text'}
+                {inputMode === 'text' ? 'Text INPUT→ Morse' : 'Morse → Text'}
               </button>
             </div>
-            <textarea
+            <textarea style={{ textTransform: 'uppercase' }}
               value={inputText}
               onChange={handleMainInputChange}
               className={`w-full flex-1 p-4 rounded-lg border border-slate-300 shadow-sm focus:ring-2 focus:ring-morse-500 focus:border-morse-500 outline-none resize-none font-mono text-lg bg-white ${inputMode === 'morse' ? 'tracking-widest' : ''}`}
@@ -365,7 +365,7 @@ export default function App() {
             <label className="text-sm font-semibold text-slate-500 uppercase tracking-wide">
               {inputMode === 'text' ? t.output : "TEXT OUTPUT"}
             </label>
-            <textarea
+            <textarea style={{ textTransform: 'uppercase' }}
               value={morseText}
               onChange={handleSecondaryDisplayChange}
               className={`w-full flex-1 p-4 rounded-lg border border-slate-300 shadow-sm focus:ring-2 focus:ring-morse-500 focus:border-morse-500 outline-none resize-none font-mono text-2xl bg-paper text-slate-800 ${inputMode === 'text' ? 'tracking-widest' : ''}`}
