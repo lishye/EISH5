@@ -348,7 +348,7 @@ export default function App() {
                 title="Swap Input Mode"
               >
                 <ArrowRightLeft size={14} />
-                {inputMode === 'text' ? 'Text INPUT→ Morse' : 'Morse → Text'}
+                {inputMode === 'text' ? 'Text → Morse' : 'Morse → Text'}
               </button>
             </div>
             <textarea style={{ textTransform: 'uppercase' }}
