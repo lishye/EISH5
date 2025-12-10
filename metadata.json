@@ -1,0 +1,5 @@
+{
+  "name": "eish5",
+  "description": "A professional Morse Code Translator inspired by eish5. Features bidirectional translation, customizable audio (CW/Telegraph), visual signaling, and Farnsworth timing training tools.",
+  "requestFramePermissions": []
+}
