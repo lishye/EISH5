@@ -1,0 +1,8 @@
+{
+    "name": "eish5", // 请替换为你的项目名
+    "compatibility_date": "2025-12-10",
+    "assets": {
+        "directory": "./dist",
+        "browser_ttl": 86400
+    }
+}
