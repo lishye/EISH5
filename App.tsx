@@ -1,20 +1,20 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Play, Pause, Volume2, VolumeX, Lightbulb, LightbulbOff, Zap, ZapOff, Download, Share2, Settings, Globe, ArrowRightLeft } from 'lucide-react';
-import { 
-  AppConfig, 
-  SoundType, 
-  AlphabetType, 
-  PlayOptions, 
-  PlaybackState 
+import { Play, Pause, Volume2, VolumeX, Lightbulb, LightbulbOff, Zap, ZapOff, Download, Share2, Settings, Globe, ArrowRightLeft, Github } from 'lucide-react';
+import {
+  AppConfig,
+  SoundType,
+  AlphabetType,
+  PlayOptions,
+  PlaybackState
 } from './types';
-import { 
-  DEFAULT_CONFIG, 
-  UI_STRINGS 
+import {
+  DEFAULT_CONFIG,
+  UI_STRINGS
 } from './constants';
-import { 
-  textToMorse, 
-  morseToText, 
-  generateTimingSequence, 
+import {
+  textToMorse,
+  morseToText,
+  generateTimingSequence,
   renderAudioToWav,
   MorseEvent
 } from './services/morseService';
@@ -22,15 +22,15 @@ import {
 export default function App() {
   // --- State ---
   const [lang, setLang] = useState<'en' | 'cn'>('en');
-  
+
   // Input Modes: 'text' means Top is Text, Bottom is Morse. 'morse' means Top is Morse.
   const [inputMode, setInputMode] = useState<'text' | 'morse'>('text');
-  
-  const [inputText, setInputText] = useState('eish5');
-  const [morseText, setMorseText] = useState(textToMorse('eish5'));
-  
+
+  const [inputText, setInputText] = useState('EISH5');
+  const [morseText, setMorseText] = useState(textToMorse('EISH5'));
+
   const [config, setConfig] = useState<AppConfig>(DEFAULT_CONFIG);
-  
+
   const [options, setOptions] = useState<PlayOptions>({
     enableSound: true,
     enableLight: true,
@@ -53,7 +53,7 @@ export default function App() {
   // We use a master gain node for the current session to easily kill all sound on Stop
   const activeGainNodeRef = useRef<GainNode | null>(null);
   const timeoutRefs = useRef<number[]>([]);
-  
+
   // Use strings helper
   const t = UI_STRINGS[lang];
 
@@ -74,13 +74,13 @@ export default function App() {
     // Swap the content
     const currentInput = inputText;
     const currentMorse = morseText;
-    
+
     if (inputMode === 'text') {
       // Switch to Morse Input: Top becomes Morse, Bottom becomes Text
       setInputMode('morse');
       // We want the top box (now Morse) to contain the Morse code
       setInputText(currentMorse);
-      setMorseText(currentInput); 
+      setMorseText(currentInput);
     } else {
       // Switch to Text Input: Top becomes Text, Bottom becomes Morse
       setInputMode('text');
@@ -105,7 +105,7 @@ export default function App() {
     const val = e.target.value;
     setMorseText(val);
     stopPlayback();
-    
+
     // If user edits the bottom box, update the top box accordingly
     if (inputMode === 'text') {
       setInputText(morseToText(val));
@@ -117,7 +117,7 @@ export default function App() {
   const toggleOption = (key: keyof PlayOptions) => {
     setOptions(prev => {
       const next = { ...prev, [key]: !prev[key] };
-      
+
       // Constraint: At least one of Sound or Light must be enabled
       if (key === 'enableSound' || key === 'enableLight') {
         if (!next.enableSound && !next.enableLight) {
@@ -141,7 +141,7 @@ export default function App() {
       }
       activeGainNodeRef.current = null;
     }
-    
+
     // 2. Clear all timeouts
     timeoutRefs.current.forEach(id => window.clearTimeout(id));
     timeoutRefs.current = [];
@@ -164,12 +164,12 @@ export default function App() {
     stopPlayback(); // Ensure everything is killed before starting new
 
     // Decide which text to play. We always play the Morse representation.
-    
+
     let stringToPlay = '';
     if (inputMode === 'text') {
-        stringToPlay = morseText;
+      stringToPlay = morseText;
     } else {
-        stringToPlay = inputText;
+      stringToPlay = inputText;
     }
 
     if (!stringToPlay.trim()) return;
@@ -191,27 +191,27 @@ export default function App() {
       if (options.enableSound && event.type === 'on') {
         const startSec = audioCtxRef.current!.currentTime + (currentTimeMs / 1000);
         const durationSec = event.duration / 1000;
-        
+
         const osc = audioCtxRef.current!.createOscillator();
         const gain = audioCtxRef.current!.createGain();
-        
+
         osc.connect(gain);
         gain.connect(sessionGain); // Connect to session gain!
-        
+
         if (config.soundType === SoundType.CW) {
           osc.type = 'sine';
           osc.frequency.value = config.pitch;
-          
+
           // Envelope to prevent popping
           gain.gain.setValueAtTime(0, startSec);
           gain.gain.linearRampToValueAtTime(config.volume / 100, startSec + 0.005);
           gain.gain.setValueAtTime(config.volume / 100, startSec + durationSec - 0.005);
           gain.gain.linearRampToValueAtTime(0, startSec + durationSec);
         } else {
-           // Telegraph click
-           osc.type = 'square';
-           osc.frequency.value = 100;
-           gain.gain.value = config.volume / 100;
+          // Telegraph click
+          osc.type = 'square';
+          osc.frequency.value = 100;
+          gain.gain.value = config.volume / 100;
         }
 
         osc.start(startSec);
@@ -226,7 +226,7 @@ export default function App() {
         } else {
           setIsLightActive(false);
         }
-        
+
         // Update Progress
         setPlayback(prev => ({
           ...prev,
@@ -234,13 +234,13 @@ export default function App() {
         }));
 
       }, currentTimeMs);
-      
+
       timeoutRefs.current.push(timeoutId);
 
       // Turn off light at end of 'on' event
       if (event.type === 'on') {
         const offId = window.setTimeout(() => {
-           setIsLightActive(false);
+          setIsLightActive(false);
         }, currentTimeMs + event.duration);
         timeoutRefs.current.push(offId);
       }
@@ -252,13 +252,13 @@ export default function App() {
     const endId = window.setTimeout(() => {
       stopPlayback();
     }, totalDuration + 100);
-    
+
     timeoutRefs.current.push(endId);
 
   }, [inputMode, inputText, morseText, config, options, stopPlayback]);
 
   const handlePause = () => {
-     stopPlayback(); 
+    stopPlayback();
   };
 
   const handleSaveAudio = async () => {
@@ -281,17 +281,17 @@ export default function App() {
   const handleShare = () => {
     const textContent = inputMode === 'text' ? inputText : morseText;
     const morseContent = inputMode === 'text' ? morseText : inputText;
-    
+
     if (navigator.share) {
       // Validate URL: navigator.share throws if url is invalid (e.g. data:, about:blank in iframes)
       let shareUrl = window.location.href;
       // If we are in a non-standard environment (like an iframe with about:srcdoc), use a fallback or omit
       if (!shareUrl.startsWith('http')) {
-        shareUrl = 'https://eish5.com'; 
+        shareUrl = 'https://eish5.com';
       }
 
       navigator.share({
-        title: 'eish5 Morse',
+        title: 'EISH5 Morse Code',
         text: `Text: ${textContent}\nMorse: ${morseContent}`,
         url: shareUrl
       }).catch((err) => {
@@ -310,13 +310,13 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-700">
-      
+
       {/* Header */}
       <header className="bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center shadow-sm relative z-20">
-        <h1 className="text-2xl font-bold tracking-tight text-morse-800">
-          eish5 <span className="text-morse-500 text-sm font-normal ml-2 tracking-widest">. .. ... .... .....</span>
+        <h1 className="text-4xl font-bold tracking-tight text-morse-800">
+          EISH5 <span className="text-morse-500 text-lg font-normal ml-2 tracking-widest">. .. ... .... .....</span>
         </h1>
-        <button 
+        <button
           onClick={() => setLang(l => l === 'en' ? 'cn' : 'en')}
           className="flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-slate-100 text-sm font-medium transition-colors"
         >
@@ -327,24 +327,24 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col md:flex-row overflow-hidden relative">
-        
+
         {/* Flash Overlay */}
-        <div 
+        <div
           className={`absolute inset-0 bg-morse-900 pointer-events-none z-10 signal-flash ${isLightActive ? 'opacity-20' : 'opacity-0'}`}
         />
 
         {/* Center: Input/Output */}
         <div className="flex-1 p-4 md:p-8 flex flex-col gap-6 overflow-y-auto relative z-0">
-          
+
           {/* TOP BOX */}
           <div className="flex flex-col gap-2 flex-1">
             <div className="flex justify-between items-center">
               <label className="text-sm font-semibold text-slate-500 uppercase tracking-wide">
                 {inputMode === 'text' ? t.input : "MORSE INPUT"}
               </label>
-              <button 
+              <button
                 onClick={handleSwapMode}
-                className="flex items-center gap-1 text-xs font-bold text-morse-600 bg-morse-50 hover:bg-morse-100 px-3 py-1 rounded-full transition-colors"
+                className="flex items-center gap-1 text-lg font-bold text-morse-600 bg-morse-50 hover:bg-morse-100 px-3 py-1 rounded-full transition-colors"
                 title="Swap Input Mode"
               >
                 <ArrowRightLeft size={14} />
@@ -363,7 +363,7 @@ export default function App() {
           {/* BOTTOM BOX */}
           <div className="flex flex-col gap-2 flex-1">
             <label className="text-sm font-semibold text-slate-500 uppercase tracking-wide">
-               {inputMode === 'text' ? t.output : "TEXT OUTPUT"}
+              {inputMode === 'text' ? t.output : "TEXT OUTPUT"}
             </label>
             <textarea
               value={morseText}
@@ -377,47 +377,47 @@ export default function App() {
 
         {/* Right: Quick Settings (Sliders) */}
         <div className="w-full md:w-64 bg-white border-l border-slate-200 p-6 flex md:flex-col justify-between md:justify-start gap-8 z-20 shadow-[-4px_0_15px_-3px_rgba(0,0,0,0.05)]">
-          
+
           {/* Speed */}
           <div className="flex flex-col items-center gap-2 flex-1 md:flex-none h-48 md:h-64">
-             <span className="font-semibold text-sm text-slate-600">{t.speed}</span>
-             <span className="text-xs text-morse-600 font-mono mb-2">{config.wpm}</span>
-             <input 
-               type="range" 
-               min="5" max="50" 
-               orient="vertical"
-               className="slider-vertical flex-1 accent-morse-600 cursor-pointer"
-               value={config.wpm}
-               onChange={(e) => setConfig({...config, wpm: Number(e.target.value)})}
-             />
+            <span className="font-semibold text-sm text-slate-600">{t.speed}</span>
+            <span className="text-xs text-morse-600 font-mono mb-2">{config.wpm}</span>
+            <input
+              type="range"
+              min="5" max="50"
+              orient="vertical"
+              className="slider-vertical flex-1 accent-morse-600 cursor-pointer"
+              value={config.wpm}
+              onChange={(e) => setConfig({ ...config, wpm: Number(e.target.value) })}
+            />
           </div>
 
           {/* Pitch */}
           <div className="flex flex-col items-center gap-2 flex-1 md:flex-none h-48 md:h-64">
-             <span className="font-semibold text-sm text-slate-600">{t.pitch}</span>
-             <span className="text-xs text-morse-600 font-mono mb-2">{config.pitch}</span>
-             <input 
-               type="range" 
-               min="200" max="1000" step="50"
-               orient="vertical"
-               className="slider-vertical flex-1 accent-morse-600 cursor-pointer"
-               value={config.pitch}
-               onChange={(e) => setConfig({...config, pitch: Number(e.target.value)})}
-             />
+            <span className="font-semibold text-sm text-slate-600">{t.pitch}</span>
+            <span className="text-xs text-morse-600 font-mono mb-2">{config.pitch}</span>
+            <input
+              type="range"
+              min="200" max="1000" step="50"
+              orient="vertical"
+              className="slider-vertical flex-1 accent-morse-600 cursor-pointer"
+              value={config.pitch}
+              onChange={(e) => setConfig({ ...config, pitch: Number(e.target.value) })}
+            />
           </div>
 
           {/* Volume */}
           <div className="flex flex-col items-center gap-2 flex-1 md:flex-none h-48 md:h-64">
-             <span className="font-semibold text-sm text-slate-600">{t.volume}</span>
-             <span className="text-xs text-morse-600 font-mono mb-2">{config.volume}</span>
-             <input 
-               type="range" 
-               min="0" max="100" 
-               orient="vertical"
-               className="slider-vertical flex-1 accent-morse-600 cursor-pointer"
-               value={config.volume}
-               onChange={(e) => setConfig({...config, volume: Number(e.target.value)})}
-             />
+            <span className="font-semibold text-sm text-slate-600">{t.volume}</span>
+            <span className="text-xs text-morse-600 font-mono mb-2">{config.volume}</span>
+            <input
+              type="range"
+              min="0" max="100"
+              orient="vertical"
+              className="slider-vertical flex-1 accent-morse-600 cursor-pointer"
+              value={config.volume}
+              onChange={(e) => setConfig({ ...config, volume: Number(e.target.value) })}
+            />
           </div>
         </div>
 
@@ -426,10 +426,10 @@ export default function App() {
       {/* Footer Controls */}
       <footer className="bg-white border-t border-slate-200 p-4 z-30">
         <div className="max-w-6xl mx-auto flex flex-wrap justify-center gap-4 sm:gap-6 items-center">
-          
+
           {/* Play/Pause */}
-          <button 
-            onClick={playback.isPlaying ? handlePause : playSequence} 
+          <button
+            onClick={playback.isPlaying ? handlePause : playSequence}
             className="btn-unified"
           >
             {playback.isPlaying ? <Pause size={24} /> : <Play size={24} />}
@@ -437,8 +437,8 @@ export default function App() {
           </button>
 
           {/* Sound */}
-          <button 
-            onClick={() => toggleOption('enableSound')} 
+          <button
+            onClick={() => toggleOption('enableSound')}
             className={`btn-unified ${options.enableSound ? 'text-morse-600' : ''}`}
           >
             {options.enableSound ? <Volume2 size={24} /> : <VolumeX size={24} />}
@@ -446,8 +446,8 @@ export default function App() {
           </button>
 
           {/* Light */}
-          <button 
-            onClick={() => toggleOption('enableLight')} 
+          <button
+            onClick={() => toggleOption('enableLight')}
             className={`btn-unified ${options.enableLight ? 'text-amber-500' : ''}`}
           >
             {options.enableLight ? <Lightbulb size={24} /> : <LightbulbOff size={24} />}
@@ -455,8 +455,8 @@ export default function App() {
           </button>
 
           {/* Vibrate */}
-          <button 
-            onClick={() => toggleOption('enableVibrate')} 
+          <button
+            onClick={() => toggleOption('enableVibrate')}
             className={`btn-unified ${options.enableVibrate ? 'text-purple-600' : ''}`}
           >
             {options.enableVibrate ? <Zap size={24} /> : <ZapOff size={24} />}
@@ -464,8 +464,8 @@ export default function App() {
           </button>
 
           {/* Configure */}
-          <button 
-            onClick={() => setShowConfigModal(true)} 
+          <button
+            onClick={() => setShowConfigModal(true)}
             className="btn-unified"
           >
             <Settings size={24} />
@@ -473,8 +473,8 @@ export default function App() {
           </button>
 
           {/* Save */}
-          <button 
-            onClick={handleSaveAudio} 
+          <button
+            onClick={handleSaveAudio}
             className="btn-unified"
           >
             <Download size={24} />
@@ -482,12 +482,21 @@ export default function App() {
           </button>
 
           {/* Share */}
-          <button 
-            onClick={handleShare} 
+          <button
+            onClick={handleShare}
             className="btn-unified"
           >
             <Share2 size={24} />
             <span className="text-xs font-medium mt-1">{t.share}</span>
+          </button>
+
+          {/* GitHub */}
+          <button
+            onClick={() => window.open('https://github.com/lishye/EISH5', '_blank')}
+            className="btn-unified"
+          >
+            <Github size={24} />
+            <span className="text-xs font-medium mt-1">GitHub</span>
           </button>
 
         </div>
@@ -503,16 +512,16 @@ export default function App() {
                 ✕
               </button>
             </div>
-            
+
             <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
-              
+
               {/* Sound Type */}
               <div className="space-y-2">
                 <label className="text-sm font-bold text-slate-700 block">{t.soundType}</label>
-                <select 
+                <select
                   className="w-full p-2 border rounded-md"
                   value={config.soundType}
-                  onChange={(e) => setConfig({...config, soundType: e.target.value as SoundType})}
+                  onChange={(e) => setConfig({ ...config, soundType: e.target.value as SoundType })}
                 >
                   <option value={SoundType.CW}>CW Radio Tone</option>
                   <option value={SoundType.TELEGRAPH}>Telegraph Sounder</option>
@@ -526,26 +535,26 @@ export default function App() {
                   <label className="text-sm font-bold text-slate-700">{t.pitch}</label>
                   <span className="text-sm text-morse-600 font-mono">{config.pitch} Hz</span>
                 </div>
-                <input 
-                  type="range" min="200" max="1000" step="10" 
+                <input
+                  type="range" min="200" max="1000" step="10"
                   className="w-full accent-morse-600"
                   value={config.pitch}
-                  onChange={(e) => setConfig({...config, pitch: Number(e.target.value)})}
+                  onChange={(e) => setConfig({ ...config, pitch: Number(e.target.value) })}
                 />
                 <p className="text-xs text-slate-500">{t.desc_pitch}</p>
               </div>
 
-               {/* Char Speed */}
-               <div className="space-y-2">
+              {/* Char Speed */}
+              <div className="space-y-2">
                 <div className="flex justify-between">
                   <label className="text-sm font-bold text-slate-700">{t.charSpeed}</label>
                   <span className="text-sm text-morse-600 font-mono">{config.wpm} WPM</span>
                 </div>
-                <input 
+                <input
                   type="range" min="5" max="60"
                   className="w-full accent-morse-600"
                   value={config.wpm}
-                  onChange={(e) => setConfig({...config, wpm: Number(e.target.value)})}
+                  onChange={(e) => setConfig({ ...config, wpm: Number(e.target.value) })}
                 />
                 <p className="text-xs text-slate-500">{t.desc_speed}</p>
               </div>
@@ -556,22 +565,22 @@ export default function App() {
                   <label className="text-sm font-bold text-slate-700">{t.farnSpeed}</label>
                   <span className="text-sm text-morse-600 font-mono">{config.farnsworth} WPM</span>
                 </div>
-                <input 
+                <input
                   type="range" min="5" max="60"
                   className="w-full accent-morse-600"
                   value={config.farnsworth}
-                  onChange={(e) => setConfig({...config, farnsworth: Number(e.target.value)})}
+                  onChange={(e) => setConfig({ ...config, farnsworth: Number(e.target.value) })}
                 />
                 <p className="text-xs text-slate-500">{t.desc_farn}</p>
               </div>
 
-               {/* Alphabet */}
-               <div className="space-y-2">
+              {/* Alphabet */}
+              <div className="space-y-2">
                 <label className="text-sm font-bold text-slate-700 block">{t.alphabet}</label>
-                <select 
+                <select
                   className="w-full p-2 border rounded-md"
                   value={config.alphabet}
-                  onChange={(e) => setConfig({...config, alphabet: e.target.value as AlphabetType})}
+                  onChange={(e) => setConfig({ ...config, alphabet: e.target.value as AlphabetType })}
                 >
                   <option value={AlphabetType.LATIN}>Latin (Standard)</option>
                 </select>
@@ -581,7 +590,7 @@ export default function App() {
             </div>
 
             <div className="p-4 bg-slate-50 border-t border-slate-200 text-right">
-              <button 
+              <button
                 onClick={() => setShowConfigModal(false)}
                 className="px-6 py-2 bg-morse-600 text-white rounded-lg hover:bg-morse-700 font-medium"
               >
@@ -595,6 +604,7 @@ export default function App() {
       <style>{`
         .btn-unified {
           @apply flex flex-col items-center justify-center p-2 rounded-xl transition-all text-slate-500 hover:text-slate-900 hover:bg-slate-50 min-w-[70px] sm:min-w-[80px];
+          width: 80px;border: black;text-align: -webkit-center;
         }
       `}</style>
     </div>

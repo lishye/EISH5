@@ -31,7 +31,7 @@ export const DEFAULT_CONFIG: AppConfig = {
 
 export const UI_STRINGS = {
   en: {
-    title: "eish5 Morse Translator",
+    title: "EISH5 Morse Translator",
     input: "Input",
     output: "Output",
     speed: "Speed",
@@ -61,7 +61,7 @@ export const UI_STRINGS = {
     desc_alpha: "Character set mapping."
   },
   cn: {
-    title: "eish5 摩尔斯电码翻译器",
+    title: "EISH5 摩尔斯电码翻译器",
     input: "输入",
     output: "输出",
     speed: "速度",
