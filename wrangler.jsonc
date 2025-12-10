@@ -3,6 +3,7 @@
     "compatibility_date": "2025-12-10",
     "assets": {
         "directory": "./dist",
-        "browser_ttl": 86400
+        "browser_ttl": 86400,
+        "binding": "ASSETS"
     }
 }
