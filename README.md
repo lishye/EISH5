@@ -1,6 +1,6 @@
 # EISH5.com by Google AI Studio app
 
-I have a domain is eish5.com
+I have a domain is [eish5.com](https://www.eish5.com)
 The inspiration for "EISH5" comes from Morse code (. .. ... .... .....), which consists entirely of dots.
 
 Hence, I decided to create a Morse Code Translator website with the following features:
